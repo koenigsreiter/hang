@@ -1,0 +1,24 @@
+{
+  "name": "hang",
+  "version": "1.0.0",
+  "description": "Hang, a multiplayer based hangman game",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koenigsreiter/hang.git"
+  },
+  "keywords": [
+    "Hangman",
+    "Game",
+    "WebSockets"
+  ],
+  "author": "Königsreiter Simon, Fischbacher Berndt",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/koenigsreiter/hang/issues"
+  },
+  "homepage": "https://github.com/koenigsreiter/hang#readme"
+}
