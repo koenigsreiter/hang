@@ -19,11 +19,14 @@
             <form class="w3-container" action="/action_page.php">
               <div class="w3-section">
                 <label><b>Username</b></label>
-                <input class="w3-input w3-border w3-margin-bottom" type="text" placeholder="Enter Username" name="usrname" required>
+                <input class="w3-input w3-border w3-margin-bottom" type="text" placeholder="Enter Username" id="userinp" name="usrname" required>
                 <button class="w3-button w3-block w3-green w3-section w3-padding" type="submit">Login</button>
               </div>
             </form>
           </div>
+        </div>
+        <div id="id02"style="display:none">
+            <input type="text" id="text-input"/>
         </div>
       </div>
 
@@ -33,12 +36,19 @@
         $(() => {
             var socket = io();
 
-            $("#text-input").keyup(() => {
+            $("#text-input").keydown(() => {
                 const val = $("#text-input").val();
                 console.log(val);
                 socket.emit('input', val);
                 $('#text-input').val('');
             });
+
+            $("form").submit(function(e){
+                e.preventDefault();
+                socket.emit('login', $("#userinp").val());
+                $("#id01").hide();
+                $("#id02").show();
+            })
 
             socket.on('resp', (msg) => {
                 console.log(msg);
