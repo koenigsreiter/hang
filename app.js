@@ -57,6 +57,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('lose', (msg) => {
+        console.log(userName + " has died!" + msg);
         socket.broadcast.emit('lose/resp', {
             roomID: msg,
             userName: userName
