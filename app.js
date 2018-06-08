@@ -14,18 +14,40 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
+    var userName = "";
     console.log("A user connected!");
+
+    socket.on('login', (msg) => {
+        userName = msg;
+        console.log("The username is: " + msg);
+    });
+
+    socket.emit('login/resp', words.Word.length);
     
     socket.on('disconnect', () => {
-        console.log("A user has disconnected!");
+        console.log(`${userName} has Disconnected!`);
     });
+
     socket.on('input', (msg) => {
-        if (words.Word.includes(msg)) {
-            console.log(`User submitted ${msg} which was in the Word!`);
-            socket.emit('resp', true);
+        if (words.Word.toLowerCase().includes(msg)) {
+            console.log(`User ${userName} submitted ${msg} which was in the Word!`);
+            var indexes = [];
+            for (let index = 0; index < words.Word.length; index++) {
+                const char = words.Word[index];
+                if (char == msg) {
+                    indexes.push(index);
+                }
+            }
+            socket.emit('resp', {
+                status: true,
+                indizes: indexes,
+                char: msg
+            });
         } else {
-            console.log(`User submitted ${msg} which was not in the Word!`);
-            socket.emit('resp', false);
+            console.log(`User ${userName} submitted ${msg} which was not in the Word!`);
+            socket.emit('resp', {
+                status: false
+            });
         }
     });
 })
