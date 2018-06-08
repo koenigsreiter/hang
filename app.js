@@ -3,6 +3,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const osmosis = require('osmosis');
 const webpages = __dirname + '/static/';
+const uuidv1 = require('uuid/v1');
+
 var words = {
     Word: "Donaudampfschiffahrtskapitän",
     Desc: "Kapitän eines Schiffes, das auf der Donau fährt",
@@ -22,7 +24,10 @@ io.on('connection', (socket) => {
         console.log("The username is: " + msg);
     });
 
-    socket.emit('login/resp', words.Word.length);
+    socket.emit('login/resp', {
+        length: words.Word.length,
+        roomID: uuidv1(),
+    });
     
     socket.on('disconnect', () => {
         console.log(`${userName} has Disconnected!`);
@@ -33,7 +38,7 @@ io.on('connection', (socket) => {
             console.log(`User ${userName} submitted ${msg} which was in the Word!`);
             var indexes = [];
             for (let index = 0; index < words.Word.length; index++) {
-                const char = words.Word[index];
+                const char = words.Word[index].toLowerCase();
                 if (char == msg) {
                     indexes.push(index);
                 }
@@ -50,6 +55,13 @@ io.on('connection', (socket) => {
             });
         }
     });
+
+    socket.on('lose', (msg) => {
+        socket.broadcast.emit('lose/resp', {
+            roomID: msg,
+            userName: userName
+        });
+    })
 })
 
 http.listen(3000, function(){
