@@ -11,11 +11,20 @@ var words = {
 };
 // randomword.com
 
+var rooms = [];
+rooms.push({
+    roomID: uuidv1(),
+    players: [
+        "Simon"
+    ],
+});
+
 app.get('/', (req, res) => {
     res.sendFile(webpages + 'index.html');
 });
 
 io.on('connection', (socket) => {
+    var time = 90;
     var userName = "";
     console.log("A user connected!");
 
@@ -27,6 +36,7 @@ io.on('connection', (socket) => {
     socket.emit('login/resp', {
         length: words.Word.length,
         roomID: uuidv1(),
+        rooms: rooms,
     });
     
     socket.on('disconnect', () => {
@@ -53,6 +63,8 @@ io.on('connection', (socket) => {
             socket.emit('resp', {
                 status: false
             });
+            time = time - 5;
+            socket.emit('time/resp', time);
         }
     });
 
@@ -62,8 +74,13 @@ io.on('connection', (socket) => {
             roomID: msg,
             userName: userName
         });
-    })
-})
+    });
+
+    socket.on('time', () => {
+        --time;
+        socket.emit('time/resp', time);
+    });
+});
 
 http.listen(3000, function(){
     console.log('listening on *:3000');
