@@ -29,9 +29,20 @@
             </div>
         </div>
         <div id="id02" style="display:none">
-            <p id="counter"></p>
-            <p id="guessTXT"></p>
-            <input type="text" id="text-input" />
+            <div style="float:left">
+                <button class="w3-button w3-green" onclick="document.getElementById('createRoom').style.display='block';
+                                                            document.getElementById('game').style.display='none';">Create Room</button>
+                <div id="roomList"></div>
+            </div>
+            <div id="createRoom">
+                <input id="roomName" type="text"/>
+                <button onclick="createRoom()">Raum erstellen</button>
+            </div>
+            <div style="display:none" id="game">
+                <p id="counter"></p>
+                <p id="guessTXT"></p>
+                <input type="text" id="text-input" />
+            </div>
         </div>
     </div>
 
@@ -39,10 +50,15 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         $(() => {
-            
+
             var intID;
             var time = 5;
             var socket = io();
+
+            function createRoom(){
+                var roomName = $("#roomName").val();
+                io.emit("room/create", roomName);
+            }
 
             $("#text-input").on('input', () => {
                 const val = $("#text-input").val();
@@ -51,7 +67,7 @@
                 $('#text-input').val('');
             });
 
-            socket.on("time/resp",(msg) => {
+            socket.on("time/resp", (msg) => {
                 time = msg;
             });
 
@@ -60,16 +76,16 @@
                 socket.emit('login', $("#userinp").val());
                 $("#id01").hide();
                 $("#id02").show();
-                intID = setInterval(function(){
-                if(time > 0){
-                    socket.emit("time");
-                }else{
-                    socket.emit("lose",roomID);
-                    $("#text-input").hide();
-                    clearInterval(intID);
-                }
-                $("#counter").text(time);
-            },1000);
+                intID = setInterval(function () {
+                    if (time > 0) {
+                        socket.emit("time");
+                    } else {
+                        socket.emit("lose", roomID);
+                        $("#text-input").hide();
+                        clearInterval(intID);
+                    }
+                    $("#counter").text(time);
+                }, 1000);
             })
 
             socket.on('resp', (msg) => {
@@ -92,10 +108,20 @@
                 }
                 roomID = msg.roomID;
                 $("#guessTXT").text(string);
+                msg.rooms.forEach((room) => {
+                    $("#roomList").append(`
+<div class="w3-card-4 w3-light-grey">
+<div class="w3-container w3-center">
+<h3>${room.name}</h3>
+<button class="w3-button w3-blue" onclick="joinRoom('${room.roomID}')">Join</button>
+</div>
+</div>
+                    `)
+                })
             });
 
             socket.on('lose/resp', (msg) => {
-                if(msg.roomID == roomID){
+                if (msg.roomID == roomID) {
                     console.log(msg.userName + " has died!");
                 }
             });
