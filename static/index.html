@@ -7,10 +7,19 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <title>Hang</title>
+    <style>
+        #roomList {
+            overflow: auto;
+            height: 95vh;
+        }
+
+        #roomInfoPane {
+            float: left;
+            padding-right: 15px;
+        }
+    </style>
 </head>
-
 <body onload="document.getElementById('id01').style.display='block'">
-
     <div class="w3-container">
         <div id="id01" class="w3-modal">
             <div class="w3-modal-content w3-card-4 w3-animate-zoom" style="max-width:600px">
@@ -29,14 +38,14 @@
             </div>
         </div>
         <div id="id02" style="display:none">
-            <div style="float:left">
+            <div id="roomInfoPane">
                 <button class="w3-button w3-green" onclick="document.getElementById('createRoom').style.display='block';
-                                                            document.getElementById('game').style.display='none';">Create Room</button>
+                                                                document.getElementById('game').style.display='none';">Create Room</button>
                 <div id="roomList"></div>
             </div>
             <div id="createRoom">
-                <input id="roomName" type="text"/>
-                <button onclick="createRoom()">Raum erstellen</button>
+                <input id="roomName" type="text" />
+                <button onclick="createNewRoom()">Raum erstellen</button>
             </div>
             <div style="display:none" id="game">
                 <p id="counter"></p>
@@ -49,16 +58,17 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        var socket = io();
+
+        function createNewRoom() {
+            var roomName = $("#roomName").val();
+            socket.emit("room/create", roomName);
+        }
         $(() => {
 
             var intID;
             var time = 5;
-            var socket = io();
-
-            function createRoom(){
-                var roomName = $("#roomName").val();
-                io.emit("room/create", roomName);
-            }
+            
 
             $("#text-input").on('input', () => {
                 const val = $("#text-input").val();
@@ -103,11 +113,7 @@
             var roomID;
 
             socket.on('login/resp', (msg) => {
-                for (let i = 0; i < msg.length; i++) {
-                    string += "_";
-                }
-                roomID = msg.roomID;
-                $("#guessTXT").text(string);
+                $("#roomList").empty();
                 msg.rooms.forEach((room) => {
                     $("#roomList").append(`
 <div class="w3-card-4 w3-light-grey">
@@ -128,6 +134,7 @@
 
         });
     </script>
+
 </body>
 
 </html>

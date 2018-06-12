@@ -14,6 +14,7 @@ var words = {
 var rooms = [];
 rooms.push({
     roomID: uuidv1(),
+    name: "SuperCoolRoom",
     players: [
         "Simon"
     ],
@@ -34,8 +35,6 @@ io.on('connection', (socket) => {
     });
 
     socket.emit('login/resp', {
-        length: words.Word.length,
-        roomID: uuidv1(),
         rooms: rooms,
     });
     
@@ -79,6 +78,21 @@ io.on('connection', (socket) => {
     socket.on('time', () => {
         --time;
         socket.emit('time/resp', time);
+    });
+
+    socket.on('room/create', (msg) => {
+        var newRoom = {
+            name: msg,
+            roomId: uuidv1(),
+            players: [
+                userName
+            ]
+        };
+        rooms.push(newRoom);
+        io.emit('room/resp', newRoom);
+        io.emit('login/resp', {
+            rooms: rooms
+        });
     });
 });
 
